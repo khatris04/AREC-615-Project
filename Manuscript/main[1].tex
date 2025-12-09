@@ -1,0 +1,283 @@
+\documentclass[12pt]{extarticle}
+\usepackage{graphicx} 
+\usepackage[margin=1 in]{geometry}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{natbib}
+\bibliographystyle{apalike}
+\usepackage{threeparttable}
+
+
+
+\title{\textbf{Agricultural Productivity and Soil Carbon Dynamics: A Bioeconomic Model \\ \small \textbf{Replication and Policy Extension Using Carbon Pricing Incentives.}}}
+\author{Sushil Khatri}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+
+\section{Motivation:}
+Given the evidence of climate change and global warming-induced incidents, there are many debates over carbon management, ranging from reducing emissions to sequestering of $CO_2$. Agriculture, being a major source and sink, is an important aspect of carbon management. Farming activities such as livestock rearing, fertilizer use, etc., are major sources of carbon emissions. In contrast, forest management, cover cropping, and other soil management practices can store large amounts of carbon. Therefore, an appropriate land management policy is an important strategy for carbon management \citet{aslam2017investigating}. The paper I am replicating develops a dynamic bioeconomic model in which \citet{berazneva2019agricultural} assumed that soil carbon is a state variable. Decision variables are nitrogen fertilizer and the fraction of crop residues retained in the soil. However, this paper models the farmer's decisions while ignoring policy schemes. Therefore, I  analyze how incentives change farmers' optimal behaviour.    
+  
+
+\section{Paper Summary}
+\subsection{Model Setup:}
+\citet{berazneva2019agricultural} developed a dynamic bioeconomic model to analyze how agricultural practices influence soil carbon dynamics and productivity over time. They treat soil organic carbon as a form of natural capital that accumulates slowly and provides long-term productivity benefits. Farmers in Kenya have two options: (i) applying fertilizers to increase yield immediately, and (ii)retaining crop residues increases soil carbon, which also improves future productivity. This model captures the trade-off in which farmers can choose either fertilizer or residue retention to maximize the discounted value of profit over time. They choose soil carbon as a state variable because today's carbon field stock influences the future yields. Similarly, fertilizer and the fraction of crop residue retention are control variables, as they directly influence yield and soil carbon dynamics each period.
+
+\subsection{Model:}
+
+
+\textbf{State variable:}
+\[
+c_t: \quad \text{soil organic carbon stock (Mg/ha)}
+\]
+
+\textbf{Control variables:}
+\[
+f_t: \quad \text{fertilizer (Mg/ha)}\]
+\[
+a_t: \quad \text{fraction of crop residue retained (0--1)}
+\]
+
+\textbf{Objective function:}
+\[
+\max_{\{f_t,a_t\}} \sum_{t=0}^{\infty} \beta^t \; \pi(c_t,f_t,a_t)
+\]
+
+\textbf{Profit:}
+\[
+\pi(c_t,f_t,a_t) = p \cdot y(c_t,f_t) - \text{c}(f_t,a_t)
+\]
+
+\textbf{Yield:}
+\[
+\begin{aligned}
+y_{kit}
+&= \alpha_0 
++ \alpha_c \, c_{kit}
++ \alpha_{cc} \, c_{kit}^2
++ \alpha_f \, f_{kit}
++ \alpha_{ff} \, f_{kit}^2
++ \alpha_{cf} \, c_{kit} f_{kit} 
++\gamma_k + \phi_i + \eta_t + \nu_{kt}
++ \kappa_{kit}
+\end{aligned}
+\]
+
+where,
+$\alpha_0, \alpha_c, \alpha_{cc}, \alpha_f, \alpha_{ff}, \alpha_{cf}$ = estimated coefficients (from field data)\\
+
+\textbf{Soil Carbon Transition Equation:}
+\[
+c_{t+1} -c_t =- D c_t + A \left( a_t F k y(c_t, f_t) \right)^B
+\]
+
+ $D$ = annual SOC decay/mineralization rate\\
+  $A$, $B$ = SOC accumulation parameters calibrated from soil science models\\
+  $F$ = fraction of biomass that becomes residue\\
+  $k$ = conversion factor from residue to soil carbon\\
+
+
+\subsection{Steady-State Results (Model Output)}
+This paper by \citet{berazneva2019agricultural} shows that farmers can increase their long-term profits by managing soil carbon in an optimal way. Here, the author found that the best decision for farmers is not to use excessive fertilizer or to retain all crop residues in the soil, but rather to use a moderate amount of fertilizer (about 0.13 Mg N/ha) and keep about 54\% of crop residues in the field. This combination helps increase soil organic carbon over time, and as carbon stocks increase, crop yields also rise in the long term. In 50 years of simulation, they showed that soil carbon reaches a steady point of about 25.6 Mg C/ha, and the value of soil carbon is quite high (about \$95–\$168 per Mg of carbon). This paper shows that soil organic carbon provides real economic benefits to the farmers, so it must be managed carefully for optimal long-run profit.
+\[
+f^{*} = 0.13 \quad \text{Mg/ha}
+\]
+\[
+a^{*} = 0.54 \quad \text{(54\% residue retention)}
+\]
+\[
+c^{*} = 25.63 \quad \text{Mg C/ha}
+\]
+\[
+y^{*} \approx 3.91 \quad \text{Mg/ha}
+\]
+
+The marginal value (shadow price) of soil carbon implied by the model is:
+\[
+\$95 \text{ to } \$168 \text{ per Mg of carbon}
+\]
+
+\section{Replication:}
+I replicate the dynamic bioeconomic model to reproduce the paper's steady-state outcome and dynamic paths for fertilizer, residue retention, soil organic carbon(SOC), and yield.
+\subsection{Calibration:}
+\begin{enumerate}
+    \item[a.] I adjusted the intercept of the yield function so that $y(c^*, f^*)=3.91 Mg/ha$. \citet{berazneva2019agricultural} estimated the yield function using field data, but the published coefficients do not include the field-level fixed effect term.
+     \item[b.] The parameter A was not reported in the paper. So, I solved it using steady state $ D c^* = A \left( a^* F k y^* \right)^B$. 
+\end{enumerate}
+
+\subsection{Computation method:}
+For computation, I used all published coefficients for the yield function and open-loop optimization over a 100-year horizon (T=100).  
+\begin{enumerate}
+    \item[a.] Considering the sequence of decision variables $(f_t, a_t)$, \texttt{simulate path(f vec, avec, c0)} simulates yield, profit, and SOC for each year.
+     \item[b.] Then, all decision variables are stored in a single optimization vector x. 
+     \item[c.] For each x, I simulate the system and compute discount profit $\sum_{t=0}^{T} \beta^t \; \pi(c_t,f_t,a_t) $. To stabilize the solution and get a paper-consistent steady state result, I added two penalty terms:
+    \begin{itemize}
+      \item A terminal penalty that penalizes deviations of \(c_{100}\) from \(c^*\),
+      \item A tail penalty that penalizes deviations from the SOC steady-state condition
+      \[
+        D c_t \approx A \bigl(a_t F_C k_{rg} y_t\bigr)^B
+      \]
+      in the last few years.
+     \end{itemize}
+      \item[d.] Then, I set the initial SOC \(c_0\) to the medium value used in the paper, \(c_0 = 19.12\) and  initialized the control vector \(x_0\) with all years set to the reported steady-state values \(f^*\) and \(a^*\).
+     \item[e.] I use \texttt{optim()} with the L-BFGS-B algorithm to maximize discounted profits
+\end{enumerate}
+
+\section{Replication Results}
+I reproduce the model the steady–state values using the calibrated parameters and solving the 100–year open–loop optimization problem. The result almost matches the steady state values as shown in the paper.
+
+\begin{align*}
+f^* &\approx 0.13 \quad \text{Mg N/ha (fertilizer)} \\
+a^* &\approx 0.58 \quad \text{share of residues retained} \\
+c^* &\approx 25.54 \quad \text{Mg C/ha (soil organic carbon)} \\
+y^* &\approx 3.92 \quad \text{Mg/ha (yield)}
+\end{align*}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{100 years.jpeg}
+    \caption{Soil carbon trajectory under optimal management (replication of Berazneva et al., 2019).}
+    \label{fig:soc_path}
+\end{figure}
+
+\pagebreak
+\section{Extension:}
+\subsection{Motivation}
+Here, \cite{berazneva2019agricultural} model how fertilizer application and residue retention affects long-term soil carbon and productivity in the long term. For that, they studied farmers' behavior purely under market conditions without considering any policy interventions. This model lacks the farmers' behavior under different policy schemes. 
+
+Therefore, to address this gap, I introduce a carbon-flow subsidy in the dynamic optimization problem. In this model, farmers are paid for the annual increase in soil carbon stock in their fields. Therefore, the subsidy in period t is defined as
+\[
+\text{Subsidy}_t = p_C \, (c_{t+1} - c_t)
+\]
+where $p_C$ repesents the carbon payment (\$/Mg of SOC increase). 
+
+\subsection{Research Questions}
+My extension focuses mainly on two research questions:
+\begin{itemize}
+    \item [RQ1.] How do carbon incentives (\$/Mg of SOC gained) affect optimal fertilizer application and residue-retention decisions?
+    \item [RQ2.] What are the long-run implications of carbon subsidies for producers' welfare and climate benefits?
+\end{itemize}
+
+Together, these questions contribute to the relevant formulation of effective agricultural policies that can promote sustainable and profitable agriculture. 
+
+\subsection{Extension model}
+To see the impact of carbon incentives on farmers' dynamic management decisions, I extend the baseline model by including the carbon flow subsidy term in the optimization problem. Each year, a farmer decides how much fertilizer to apply and the residue to retain in the soil. I changed the profit function, which included both agronomic profit and policy profit due to the addition of carbon stock.
+
+
+\textbf{Objective function:}
+
+\[
+\begin{aligned}
+\max_{\{f_t, a_t\}} \quad 
+& \sum_{t=0}^{\infty} \beta^t \, \pi(c_t, f_t, a_t) +\textcolor{blue}{p_C (c_{t+1} - c_t)} \\
+\text{s.t.} \quad 
+& c_{t+1} = c_t - D c_t + 
+A \left(a_t F k \, y(c_t, f_t)\right)^B 
+\end{aligned}
+\]
+
+
+\textbf{State variable:}
+\[
+c_t: \quad \text{soil organic carbon stock (Mg/ha)}
+\]
+
+\textbf{Control variables:}
+\[
+f_t: \quad \text{fertilizer (Mg/ha)}\]
+\[
+a_t: \quad \text{fraction of crop residue retained (0--1)}
+\]
+
+
+
+\textbf{Profit:}
+\[
+\pi(c_t,f_t,a_t) = p \cdot y(c_t,f_t) - \text{c}(f_t,a_t)
+\]
+
+\textbf{Yield:}
+\[
+\begin{aligned}
+y_{kit}
+&= \alpha_0 
++ \alpha_c \, c_{kit}
++ \alpha_{cc} \, c_{kit}^2
++ \alpha_f \, f_{kit}
++ \alpha_{ff} \, f_{kit}^2
++ \alpha_{cf} \, c_{kit} f_{kit} 
++\gamma_k + \phi_i + \eta_t + \nu_{kt}
++ \kappa_{kit}
+\end{aligned}
+\]
+
+where,
+$\alpha_0, \alpha_c, \alpha_{cc}, \alpha_f, \alpha_{ff}, \alpha_{cf}$ = estimated coefficients (from field data)\\
+
+\subsection{Results}
+\subsubsection{Effect of carbon incentives on optimal behavior:}
+Table 1 shows the impact of carbon payments on optimal residue retention, fertilizer use, and long-run soil carbon levels. As all biophysical and economic parameters, such as yield parameters, soil parameters, prices, costs, and discount rate, were used from the baseline model. Therefore, these changes represent the behavioral response to the policy change. The results show that tail residue is very responsive to the price change. Tail residue retention increases from 54\% at baseline to the 60 \% at a carbon price of \$100 per Mg C and jumps to 78\% at a price of \$ 150-200 per Mg C. Similarly, the relationship between carbon price and tail fertilizer use shows that fertilizer use is less responsive to the carbon policy since fertilizer use remains at the baseline level. Fertilizer use is 0.13 Mg Nitrogen per ha at a carbon price range of \$0-100 per Mg C and slightly decreases to 0.11 Mg Nitrogen per ha when carbon price increases to  \$150-200 per Mg C. This shows that the farmers shift their focus toward SOC-building practices. Finally, steady-state soil carbon increases monotonically with an increase in the carbon payment. Baseline steady-state carbon increases from 25.6 Mg/ha to over 31 Mg/ha at a carbon price of \$150-200 per Mg C. The result from Table 1 shows that carbon-flow subsidies can change the farmer behavior toward building long-run soil carbon storage. 
+
+
+\begin{table}[h!]
+\centering
+\begin{threeparttable}
+\caption{Soil Carbon, Residue Retention, and Fertilizer Use Under Different Carbon Prices}
+\begin{tabular}{lccc}
+\hline
+\textbf{Carbon Price (\$)} & \textbf{Tail Residue\footnote{Average residue retention in the final 10 years.}} & \textbf{Tail Fertilizer\tnote{2} (Mg N/ha)} & \textbf{Soil Carbon (Mg/ha)} \\
+\hline
+0   & 0.54 & 0.13 & 25.60 \\
+50  & 0.56 & 0.13 & 26.41 \\
+100 & 0.60 & 0.13 & 27.69 \\
+150 & 0.78 & 0.11 & 31.49 \\
+200 & 0.78 & 0.11 & 31.60 \\
+\hline
+\end{tabular}
+
+\begin{tablenotes}
+\footnotesize
+\item[1] Average residue retention in the final 10 years.
+\item[2] Average fertilizer use in the final 10 years.
+\end{tablenotes}
+
+\end{threeparttable}
+\end{table}
+
+\subsubsection{Effect of carbon incentives on producers' welfare and climate:}
+Figures 2 and 3 illustrate how carbon subsidies affect farmers' welfare (measured as the change in the present value of profits), long-run agricultural productivity (measured as the change in yield), and atmospheric CO$_2$ sequestration, respectively. Farmers' welfare monotonically increases with an increase in the carbon price. Present value of profit rises from \$266 at a carbon price \$50 per Mg C to \$637 at a carbon price \$100 per Mg C, and it jumps to \$1,637 at a carbon price \$200 per Mg C. This represents a subsidy payment directly benefits the farmers. However, the yield response has a different pattern, as it first increases from baseline to the carbon price \$100 per Mg C, and then declines at higher carbon prices. This divergence shows that high subsidies push residue retention for greater welfare improvement through carbon payment. Similarly, Figure 3 illustrates how soil carbon sequestration responds to carbon policies and how these gains translate to CO$_2$ equivalent \footnote{CO$_2$ equivalent is a metric measure that expresses the climatic impact in terms of CO$_2$ effect \citet{ipcc2006guidelines}} amount. At a carbon price of \$100 per Mg C, approximately 7.67 Mg of CO$_2$ is sequestered, and it increases to approximately 21 Mg of CO$_2$ sequestrated at a carbon price of \$150-200 per Mg C. At carbon prices of \$150-200 per Mg C, soil carbon gain is almost similar. Therefore, from policy perspectives, a carbon price of \$150 per Mg C will provide the same carbon sequestration but with less burden to the government.  In general, the results show that agricultural carbon subsidies have a huge potential to mitigate climate change.  
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{Rplot02.jpeg}
+    \caption{Effect of carbon incentives on producers' welfare gain and yield change}
+    \label{fig: welfare and yield gain}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{Rplot03.jpeg}
+    \caption{Effect of carbon incentives on carbon sequestration}
+    \label{fig:Co2 sequestration}
+\end{figure}
+
+
+\section{Conclusion:}
+This extension shows that incorporating carbon-flow subsidies in the \citet{berazneva2019agricultural} bioeconomic model alters farmers' long-run fertilizer use and residue retention decisions. Similarly, this carbon-flow subsidy model improves farmers' welfare and soil carbon accumulation, thereby boosting productivity and providing a climate change mitigation benefit. Welfare nearly scales with the carbon price, and residue retention monotonically increases with the carbon price. Carbon sequestration is lower at lower carbon prices, and it significantly increases up to 6 Mg C ($\approx \text{22 Mg CO}_2 e$). However, the yield at higher prices is lower than at lower prices, since farmers shift their focus to carbon accumulation. This extension shows that introducing a carbon policy in Western Kenya can increase profitability and also promote sustainable agriculture. Therefore, this model highlights the importance of modeling farmers' responses to different agricultural climate policies. 
+
+\pagebreak
+
+\bibliography{mybib}
+
+
+\end{document}
+
+
